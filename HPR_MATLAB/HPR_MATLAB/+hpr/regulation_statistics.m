@@ -1,0 +1,19 @@
+function S=regulation_statistics(C,cfg)
+S=table;
+for ndays=cfg.windows
+    start=cfg.transitionDay+days(1)+minutes(5);
+    finish=cfg.transitionDay+days(1+ndays);
+    for service=["RAISEREG","LOWERREG"]
+        a=C(C.Time>=start & C.Time<=finish & C.Service==service,:);
+        expected=ndays*288;
+        row=table(ndays,"after",service,height(a),expected-height(a), ...
+            sum(a.GeometryValid),sum(a.DiagnosticAvailable), ...
+            sum(a.DiagnosticAboveCombinedEnvelope,'omitnan'), ...
+            sum(a.DiagnosticAboveCombinedCeiling,'omitnan'), ...
+            'VariableNames',{'Days','Period','Service','PairedIntervalGroups', ...
+            'MissingIntervalGroups','ValidGeometryGroups','EvaluatedGroups', ...
+            'AboveCombinedEnvelope','AboveCombinedCeiling'});
+        S=[S;row];
+    end
+end
+end
